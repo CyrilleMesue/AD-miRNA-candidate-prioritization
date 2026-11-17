@@ -5,7 +5,7 @@ Cell 14 ranks `gse120584_df`, not `balanced_df`.
 """
 import pandas as pd
 
-from prioritization.historical import scale_dataframe
+from prioritization.original import scale_dataframe
 
 
 def _read(path: str) -> pd.DataFrame:

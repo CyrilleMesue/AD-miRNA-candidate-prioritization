@@ -6,7 +6,7 @@ from pathlib import Path
 import pandas as pd
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "src"))
-from prioritization.historical import get_mirna_versions
+from prioritization.original import get_mirna_versions
 TABLES = {"GSE120584": ("data/interim/GSE120584_results_miRNA_Limma.csv", "P.Value", "adj.P.Val", False),
           "ROSMAP": ("data/interim/rosmap_results_miRNA_Limma.csv", "P.Value", "adj.P.Val", True),
           "GSE218605": ("data/interim/GSE218605_results_miRNA_edgeR.csv", "PValue", "FDR", True)}

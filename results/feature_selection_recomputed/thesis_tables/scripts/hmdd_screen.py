@@ -7,7 +7,7 @@ import sys, json
 from pathlib import Path
 import pandas as pd
 root, out = Path(sys.argv[1]), Path(sys.argv[2]); sys.path.insert(0, str(root / "src"))
-from prioritization.historical import get_mirna_versions, sort_dict_features
+from prioritization.original import get_mirna_versions, sort_dict_features
 h = pd.read_csv(root / "data/external/HMDD_val_data_miRNA.csv"); h = h[h.Disease == "AD"]
 allscore = dict(zip(h.Entity.str.lower(), h.Score)); known = {k for k, v in allscore.items() if v > 1}
 e = pd.read_csv(root / "results/feature_selection_recomputed/ensembles/ensemble_rankings.csv")

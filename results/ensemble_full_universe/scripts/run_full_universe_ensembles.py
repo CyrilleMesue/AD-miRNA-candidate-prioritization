@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Coverage-aware ensembles from the recomputed individual rankings.
 
-Stage A applies the historical 12 aggregators inside each dataset.
+Stage A applies the original 12 aggregators inside each dataset.
 Stage B reports those ranks for resolved mature identifiers and does not
 fill a score for a dataset that did not measure the miRNA.
 
@@ -25,7 +25,7 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "src"))
 
 from modules.featureSelection.ensemble_feature_selection import EnsembleFeatureRanker
-from prioritization.historical import (
+from prioritization.original import (
     AGGREGATORS,
     DECREASING_IMPORTANCE_SUFFIXES,
     FEATURE_RANKERS,
@@ -38,7 +38,7 @@ EXPECTED = CONFIG["expected_features"]
 INDIVIDUAL = ROOT / CONFIG["inputs"]["individual_rankings"]
 IDENTITY = ROOT / CONFIG["inputs"]["identity_audit"]
 ENSEMBLE_58 = ROOT / CONFIG["inputs"]["recomputed_58_ensembles"]
-HISTORICAL_TOP20 = ROOT / CONFIG["inputs"]["historical_top20"]
+ORIGINAL_TOP20 = ROOT / CONFIG["inputs"]["original_top20"]
 
 
 def sha256_file(path: Path) -> str:
@@ -133,7 +133,7 @@ def scores_to_frame(scores: dict, aggregator: str, dataset: str, coverage: pd.Da
 
 
 def synthetic_complete_case_check() -> dict:
-    """Show that the historical dropna keeps only names present in every dictionary."""
+    """Show that the original dropna keeps only names present in every dictionary."""
     weights = {
         "A:t_test": {"a": 0.01, "b": 0.40},
         "A:lasso": {"a": 3.0, "b": 0.2},
@@ -270,24 +270,24 @@ def cross_dataset_tables(within: dict[str, pd.DataFrame], resolved_rows: pd.Data
 def compare_with_58(summary: pd.DataFrame, within: dict[str, pd.DataFrame]) -> pd.DataFrame:
     from scipy.stats import spearmanr
 
-    historical = json.loads(HISTORICAL_TOP20.read_text())
+    original = json.loads(ORIGINAL_TOP20.read_text())
     rows = []
     for aggregator in AGGREGATORS:
         path = ENSEMBLE_58 / f"{aggregator}_top20.json"
         recomputed = json.loads(path.read_text()) if path.is_file() else []
-        historical_names = historical.get(aggregator.upper(), [])
-        shared = [name for name in recomputed if name in historical_names]
+        original_names = original.get(aggregator.upper(), [])
+        shared = [name for name in recomputed if name in original_names]
         rows.append(
             {
-                "comparison": "recomputed_58_vs_historical_printed_top20",
+                "comparison": "recomputed_58_vs_original_printed_top20",
                 "aggregator": aggregator,
                 "dataset": "combined_39_dictionaries",
                 "left_n": 58,
                 "right_n": 20,
-                "top20_overlap": len(set(recomputed) & set(historical_names)),
+                "top20_overlap": len(set(recomputed) & set(original_names)),
                 "spearman_on_shared_top20": (
                     spearmanr(
-                        [historical_names.index(name) for name in shared],
+                        [original_names.index(name) for name in shared],
                         [recomputed.index(name) for name in shared],
                     ).statistic
                     if len(shared) > 1
@@ -342,11 +342,11 @@ def compare_with_58(summary: pd.DataFrame, within: dict[str, pd.DataFrame]) -> p
 def compare_all_sets(all_sets: pd.DataFrame) -> pd.DataFrame:
     from scipy.stats import spearmanr
 
-    historical = json.loads(HISTORICAL_TOP20.read_text())
+    original = json.loads(ORIGINAL_TOP20.read_text())
     rows = []
     for aggregator in AGGREGATORS:
         recomputed = json.loads((ENSEMBLE_58 / f"{aggregator}_top20.json").read_text())
-        historical_names = historical.get(aggregator.upper(), [])
+        original_names = original.get(aggregator.upper(), [])
         full_58 = pd.read_csv(ENSEMBLE_58 / "ensemble_rankings.csv")
         full_58 = full_58[full_58["aggregator"] == aggregator][["feature_id", "ensemble_rank"]].rename(
             columns={"feature_id": "shared_id", "ensemble_rank": "rank_in_58"}
@@ -370,7 +370,7 @@ def compare_all_sets(all_sets: pd.DataFrame) -> pd.DataFrame:
                 "right_n": 58,
                 "top20_overlap": len(set(top) & set(recomputed)),
                 "spearman_on_shared_features": rho,
-                "top20_overlap_with_historical_print": len(set(top) & set(historical_names)),
+                "top20_overlap_with_original_print": len(set(top) & set(original_names)),
                 "top20_datasets_1": int(coverage.get(1, 0)),
                 "top20_datasets_2": int(coverage.get(2, 0)),
                 "top20_datasets_3": int(coverage.get(3, 0)),

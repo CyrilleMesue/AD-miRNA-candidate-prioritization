@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 
 from modules.featureSelection.ensemble_feature_selection import EnsembleFeatureRanker
-from prioritization.historical import (
+from prioritization.original import (
     AGGREGATORS,
     DECREASING_IMPORTANCE_SUFFIXES,
 )

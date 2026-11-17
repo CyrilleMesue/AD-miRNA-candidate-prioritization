@@ -3,7 +3,7 @@
 
 PCA coordinates are read from the original SVG files. Other panels read
 saved tables. This script does not refit PCA, rank features, or edit
-historical outputs.
+original outputs.
 
 python results/eda_consolidated/scripts/build_consolidated_figures.py
 """
@@ -423,7 +423,7 @@ def write_captions(candidates: pd.DataFrame) -> None:
             parts.append(f"{diagnosis} {int(row['n_observed'])}/{int(row['n_samples'])}")
         candidate_bits.append(f"{feature}: " + ", ".join(parts))
     captions = {
-        "figure1_sample_structure_pca": """Figure 1. Unsupervised structure of the three historical ranking matrices.
+        "figure1_sample_structure_pca": """Figure 1. Unsupervised structure of the three original ranking matrices.
 
 The question is whether AD and Control samples occupy different regions of each dataset after a column-centered principal component analysis. Each panel is one dataset. The matrices were not combined. Diagnosis was not used to fit the components; it only colours the points after the scores were obtained.
 
@@ -431,11 +431,11 @@ A. ROSMAP dorsolateral prefrontal cortex, NanoString, 378 samples (209 AD, 169 C
 B. GSE120584 serum, microarray, 1,309 samples (1,021 AD, 288 Control) and 2,521 miRNAs. PC1 explains 55.4% of the variance and PC2 explains 6.8%.
 C. GSE215789 plasma, miRNA sequencing, 44 samples (23 AD, 21 Control) and 1,137 miRNAs. PC1 explains 42.1% of the variance and PC2 explains 7.7%.
 
-Point coordinates were read from the geometry of the original PCA figures. Those SVG files do not store sample identifiers, so this figure is not a recovered sample-level score matrix. Axes use an equal data aspect, so one unit on PC1 has the same length as one unit on PC2 within a panel. Axis ranges are not shared across panels. Blue is Control and orange is AD, using the colours stored in the original figures. Open circles mark the points whose coordinates match the previously flagged PC1–PC2 positions. The historical screen used a squared robust distance above the chi-square 0.999 quantile (threshold 13.816 on 2 degrees of freedom): 3 in ROSMAP, 8 in GSE120584, and 6 in GSE215789. No sample was removed. Separation in these plots is not evidence of differential expression or of classification performance. Component signs are arbitrary.
+Point coordinates were read from the geometry of the original PCA figures. Those SVG files do not store sample identifiers, so this figure is not a recovered sample-level score matrix. Axes use an equal data aspect, so one unit on PC1 has the same length as one unit on PC2 within a panel. Axis ranges are not shared across panels. Blue is Control and orange is AD, using the colours stored in the original figures. Open circles mark the points whose coordinates match the previously flagged PC1–PC2 positions. The original screen used a squared robust distance above the chi-square 0.999 quantile (threshold 13.816 on 2 degrees of freedom): 3 in ROSMAP, 8 in GSE120584, and 6 in GSE215789. No sample was removed. Separation in these plots is not evidence of differential expression or of classification performance. Component signs are arbitrary.
 """,
         "figure2_scaled_matrix_summaries": """Figure 2. Sample-level summaries of the feature-wise min-max scaled ranking matrices.
 
-The question is how the scaled values are distributed inside each historical matrix. Each matrix was scaled separately to its own unit interval before ranking. The plotted numbers are not raw expression abundance, and they are not comparable across NanoString, microarray, and sequencing.
+The question is how the scaled values are distributed inside each original matrix. Each matrix was scaled separately to its own unit interval before ranking. The plotted numbers are not raw expression abundance, and they are not comparable across NanoString, microarray, and sequencing.
 
 A. Mean of the min-max scaled feature values within each sample. ROSMAP n = 378, GSE120584 n = 1,309, GSE215789 n = 44.
 B. Proportion of retained features equal to exact zero in each sample. Sample sizes match panel A. The matrix-wide zero proportions are 0.0020 in ROSMAP, 0.0007 in GSE120584, and 0.675 in GSE215789.
@@ -444,9 +444,9 @@ Boxes show the median and quartiles. Whiskers extend to 1.5 times the interquart
 """,
         "figure3_mature_coverage_and_observation": """Figure 3. Mature-miRNA identifiers in the retained feature lists, and read observation in the plasma sequencing matrix.
 
-The question is which historical feature names correspond to one mature miRNA, which resolved names are shared across datasets, and how often the retained plasma features have a nonzero count. A name is resolved only when it is a unique product name in the project accession map. Arm labels were not added or removed. Identifiers that join more than one miRNA name were not split. The resolved counts depend on that map. They are not a census of every mature miRNA measured by the assay.
+The question is which original feature names correspond to one mature miRNA, which resolved names are shared across datasets, and how often the retained plasma features have a nonzero count. A name is resolved only when it is a unique product name in the project accession map. Arm labels were not added or removed. Identifiers that join more than one miRNA name were not split. The resolved counts depend on that map. They are not a census of every mature miRNA measured by the assay.
 
-A. Class of every retained feature, drawn as a fraction of that dataset's feature list. The count at the right is the number of retained features. ROSMAP has 95 resolved, 8 ambiguous, 189 unresolved, and 17 non-human features (309 total). GSE120584 has 2,521 resolved features. GSE215789 has 1,017 resolved, 41 ambiguous, and 79 unresolved features (1,137 total). The plasma count matrix contains 2,362 resolved names before the historical all-zero filter.
+A. Class of every retained feature, drawn as a fraction of that dataset's feature list. The count at the right is the number of retained features. ROSMAP has 95 resolved, 8 ambiguous, 189 unresolved, and 17 non-human features (309 total). GSE120584 has 2,521 resolved features. GSE215789 has 1,017 resolved, 41 ambiguous, and 79 unresolved features (1,137 total). The plasma count matrix contains 2,362 resolved names before the original all-zero filter.
 B. UpSet plot of resolved mature identities only. Ambiguous, unresolved, and non-human features were excluded from every intersection. Horizontal bars at the left are the resolved-set sizes: ROSMAP 95, GSE120584 2,521, and GSE215789 1,017. Vertical bars are exclusive intersection sizes, and a filled dot means that dataset belongs to the intersection. The exclusive sizes are serum only 1,485, serum and plasma 942, all three datasets 58, ROSMAP and serum 36, plasma only 17, ROSMAP only 1, and ROSMAP and plasma outside serum 0. Pairwise totals, counting the shared three-way names, are ROSMAP ∩ serum = 94 (Jaccard 0.037), ROSMAP ∩ plasma = 58 (Jaccard 0.055), and serum ∩ plasma = 1,000 (Jaccard 0.394). These counts describe the project's accession map, not the complete biological content of each assay. ROSMAP contributes only 95 resolved names because 189 of its 309 retained probe names have no accession in that map. The small overlap is therefore an identifier-resolution limit. It does not mean the unresolved miRNAs were absent from DLPFC. Arm labels were preserved, and the three candidates hsa-miR-324-3p, hsa-miR-574-3p, and hsa-miR-769-3p are retained in every dataset.
 C. Empirical distribution of read-observation prevalence for the 1,137 retained GSE215789 features. A feature is observed in a sample when its original count is greater than 0. This is not an analytical detection call. Curves are AD (n = 23) and Control (n = 21). The median fraction of features observed in a sample is 0.296 in AD (IQR 0.231–0.351) and 0.343 in Control (IQR 0.218–0.441). Candidate counts are """
         + "; ".join(candidate_bits)
@@ -505,7 +505,7 @@ def main() -> None:
         variance_row = pca_summary.loc[pca_summary["dataset"] == dataset].iloc[0]
         shown = (round(100 * float(variance_row["variance_pc1"]), 1), round(100 * float(variance_row["variance_pc2"]), 1))
         if shown != expected_variance[dataset]:
-            raise RuntimeError(f"{dataset} displayed variance {shown} does not match the historical one-decimal report")
+            raise RuntimeError(f"{dataset} displayed variance {shown} does not match the original one-decimal report")
         residual = tick_residual(SVG[dataset])
         if residual > 1e-6:
             raise RuntimeError(f"{dataset} SVG tick transform is not linear")
@@ -576,7 +576,7 @@ def main() -> None:
     write_captions(candidates)
 
     provenance_record = {
-        "method": "Pixel positions of filled markers and open rings were read from the historical SVG. Axis ticks supplied a linear map from pixels to PC1 and PC2. PCA was not refit.",
+        "method": "Pixel positions of filled markers and open rings were read from the original SVG. Axis ticks supplied a linear map from pixels to PC1 and PC2. PCA was not refit.",
         "sample_identity": "The SVG geometry does not contain sample identifiers. Coordinate tables therefore have a point index, diagnosis colour, and flagged status, but no sample ID.",
         "flagged_status": "An open ring was accepted when its recovered coordinates matched one row of outlier_summary.csv. The nearest filled marker was then marked flagged. This is a geometric match, not an identifier stored in the SVG.",
         "datasets": provenance,

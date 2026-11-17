@@ -1,12 +1,12 @@
 """Run the 13 Notebook 11 rankers on each dataset.
 
-Calls the historical DifferentiatingFactorAnalysis class unchanged.
+Calls the original DifferentiatingFactorAnalysis class unchanged.
 """
 import json
 from pathlib import Path
 
 from modules.differentialAnalysis.differential_analysis import DifferentiatingFactorAnalysis
-from prioritization.historical import FEATURE_RANKERS
+from prioritization.original import FEATURE_RANKERS
 
 
 def run_individual_rankers(datasets: dict, outdir: str) -> dict:

@@ -42,7 +42,7 @@ def synthetic_case() -> dict[str, bool]:
     best = ranked.loc[ranked["ensemble_rank"].idxmin()]
     worst = ranked.loc[ranked["average_rank"].idxmax()]
     return {
-        "historical_combined_call_keeps_only_shared_name": set(combined) == {"b"},
+        "original_combined_call_keeps_only_shared_name": set(combined) == {"b"},
         "within_dataset_keeps_dataset_only_feature": set(within_a) == {"a", "b"} and "c" not in within_a,
         "unmeasured_feature_has_no_score": "a" not in within_b and "c" not in within_a,
         "repeat_identical": within_a == repeated,

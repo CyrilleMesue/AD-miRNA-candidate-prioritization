@@ -3,17 +3,17 @@ same-dataset DE rule. HMDD matching uses the pipeline's rule (any of
 get_mirna_versions(include_base=True) in HMDD Entity, case-insensitive).
 DE: per-dataset entry -> that dataset's table (|logFC| > 0.1 and p < 0.05;
 GSE215789 has none); shared-58 entry -> any of the three tables, reported
-both with the historical GSE120584 rule (no p filter) and with p < 0.05.
+both with the original GSE120584 rule (no p filter) and with p < 0.05.
 Usage: python known_ad_mirnas_in_pool.py"""
 import sys
 from pathlib import Path
 import pandas as pd
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT)); sys.path.insert(0, str(ROOT / "src")); sys.path.insert(0, str(Path(__file__).parent))
-from prioritization.historical import get_mirna_versions
+from prioritization.original import get_mirna_versions
 from prioritize_with_per_dataset_ensembles import ensemble_lists
 from prioritize_same_dataset_de import DE, SAME, load_de, lookup
-from prioritization.historical import sort_dict_features
+from prioritization.original import sort_dict_features
 
 hmdd = pd.read_csv(ROOT / "data/external/HMDD_val_data_miRNA.csv")
 hmdd = hmdd[hmdd.Disease == "AD"]; score = dict(zip(hmdd.Entity.str.lower(), hmdd.Score))

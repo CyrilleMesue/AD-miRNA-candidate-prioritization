@@ -30,7 +30,7 @@ matplotlib.use("Agg", force=True)
 import pandas as pd
 
 from modules.featureSelection.ensemble_feature_selection import EnsembleFeatureRanker
-from prioritization.historical import AGGREGATORS, DECREASING_IMPORTANCE_SUFFIXES, sort_dict_features
+from prioritization.original import AGGREGATORS, DECREASING_IMPORTANCE_SUFFIXES, sort_dict_features
 
 DATASETS = ("ROSMAP", "GSE120584", "GSE215789")
 INDIVIDUAL = OUT / "individual"

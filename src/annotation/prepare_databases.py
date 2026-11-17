@@ -13,7 +13,7 @@ def prepare_genecards(alzheimer_csv, breast_csv, psp_csv, out_csv):
         df = pd.read_csv(path)
         df = df[["Gene Symbol", "Relevance score"]]
         df.rename(columns={"Gene Symbol": "Entity", "Relevance score": "Score"}, inplace=True)
-        df.sort_values(by="Score", ascending=False)  # historical no-op
+        df.sort_values(by="Score", ascending=False)  # original no-op
         return pd.concat([pd.DataFrame({"Disease": [disease] * df.shape[0]}), df], axis=1)
 
     out = pd.concat([

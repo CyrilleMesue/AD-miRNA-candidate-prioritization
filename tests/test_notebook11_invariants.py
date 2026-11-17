@@ -1,6 +1,6 @@
 """Invariants of the extracted Notebook 11 workflow.
 
-Sample-count checks run only when HISTORICAL_PROJECT points at the
+Sample-count checks run only when ORIGINAL_PROJECT points at the
 original project. They call the same loader the pipeline uses.
 """
 import os
@@ -11,7 +11,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from prioritization.historical import (
+from prioritization.original import (
     AGGREGATORS,
     FEATURE_RANKERS,
     ad_mirna_target_pipeline,
@@ -50,11 +50,11 @@ class InventoryTests(unittest.TestCase):
         self.assertNotIn("downsample_gse120584_unused(", src.replace("def downsample_gse120584_unused", ""))
 
 
-class HistoricalMatrixTests(unittest.TestCase):
+class OriginalMatrixTests(unittest.TestCase):
     def setUp(self):
-        project = os.environ.get("HISTORICAL_PROJECT")
+        project = os.environ.get("ORIGINAL_PROJECT")
         if not project:
-            self.skipTest("HISTORICAL_PROJECT is not set")
+            self.skipTest("ORIGINAL_PROJECT is not set")
         self.base = Path(project) / "data" / "microRNA"
         for name in ("ROSMAP_brain_norm.csv", "GSE120584_serum_norm.csv", "GSE215789_plasma_count.csv"):
             if not (self.base / name).is_file():

@@ -27,7 +27,7 @@ from matplotlib.lines import Line2D
 from matplotlib.transforms import Bbox
 
 from prioritization.candidate_selection import load_annotation_tables, load_differential_tables
-from prioritization.historical import get_mirna_versions, sort_dict_features
+from prioritization.original import get_mirna_versions, sort_dict_features
 from scripts.run_pipeline import load_config, resolve
 
 out = Path(sys.argv[1])

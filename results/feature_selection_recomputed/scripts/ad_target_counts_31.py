@@ -10,7 +10,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT)); sys.path.insert(0, str(ROOT / "src"))
 from prioritization.candidate_selection import load_annotation_tables
-from prioritization.historical import get_mirna_versions
+from prioritization.original import get_mirna_versions
 from scripts.run_pipeline import load_config, resolve
 cfg = load_config(str(ROOT / "config/analysis_config.yaml"))
 db = load_annotation_tables({k: resolve(ROOT, v) for k, v in cfg["annotation"].items()})

@@ -9,7 +9,7 @@ pass |logFC| > 0.1 AND P.Value < 0.05 in the differential table of X:
 A miRNA that enters through a shared-58 list may pass in any of the three
 miRNA DE tables (ROSMAP, GSE120584, GSE218605), as in the original
 pipeline. Two variants are written for that path:
-  shared_rule="original": GSE120584 without a p-value filter (historical)
+  shared_rule="original": GSE120584 without a p-value filter (original)
   shared_rule="p05":      p < 0.05 required in every table
 A miRNA is kept if any of its entry paths passes. The HMDD/target filters
 (run_stage1) and the association pass are the unchanged pipeline code.
@@ -33,7 +33,7 @@ sys.path.insert(0, str(ROOT / "src"))
 import pandas as pd
 
 from prioritization.candidate_selection import load_annotation_tables, run_stage1, target_association_pass
-from prioritization.historical import get_mirna_versions
+from prioritization.original import get_mirna_versions
 from scripts.run_pipeline import load_config, resolve
 
 sys.path.insert(0, str(Path(__file__).parent))

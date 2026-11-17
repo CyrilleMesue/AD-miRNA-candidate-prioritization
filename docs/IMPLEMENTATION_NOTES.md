@@ -1,6 +1,6 @@
 # Implementation notes
 
-These are behaviors of the historical code. They were preserved.
+These are behaviors of the original code. They were preserved.
 
 ## GSE120584 downsample is not used
 
@@ -48,7 +48,7 @@ Cell 44's `to_csv` is commented out. Cell 45 then reads
 `data/stage2-selected-miRNA-and-targets.csv` and replaces the table just
 computed. The extracted pipeline writes the computed table and does not
 silently swap in that checkpoint. To match the executed session, pass
-that historical CSV into `target_association_pass`.
+that original CSV into `target_association_pass`.
 
 ## ROSMAP ranking labels and ROSMAP limma labels differ
 
@@ -109,7 +109,7 @@ the 13 methods.
 
 ## Rank normalization in `Rank_by_Ranks` (changed 2026-11-06)
 
-This is the one historical behavior that was changed. Ranks were assigned
+This is the one original behavior that was changed. Ranks were assigned
 over each complete input list (up to 309, 2,521, or 1,137 miRNAs), the
 table was cut to the 58 miRNAs shared by all 39 lists, and the ranks were
 divided by 58. Normalized ranks therefore ran from 0.017 to 43.4, outside
@@ -139,7 +139,7 @@ least one list. Removing maximum weight does not change the shortlist.
 
 ## miRTarBase lookup for miRNAs without an arm designation (changed 2026-11-06)
 
-This is the second historical behavior that was changed. At the
+This is the second original behavior that was changed. At the
 target-association step (`ad_mirna_target_pipeline` step 5 and
 `target_association_pass`), each miRNA was looked up in miRTarBase with
 `get_mirna_versions(miR)`, which returns only the `-3p` and `-5p` forms.

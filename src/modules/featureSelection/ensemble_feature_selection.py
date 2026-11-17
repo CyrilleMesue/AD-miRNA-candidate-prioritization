@@ -101,7 +101,7 @@ class EnsembleFeatureRanker(BaseConfigurable):
         """Align ranking dictionaries by feature name.
 
         ``intersection`` keeps names present in every dictionary. That is the
-        historical complete-case rule. ``union`` keeps every name present in
+        original complete-case rule. ``union`` keeps every name present in
         at least one dictionary and leaves the other cells missing.
         """
         if universe not in {"intersection", "union"}:

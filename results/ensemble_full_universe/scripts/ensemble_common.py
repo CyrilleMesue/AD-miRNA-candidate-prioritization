@@ -15,7 +15,7 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "src"))
 
 from modules.featureSelection.ensemble_feature_selection import EnsembleFeatureRanker
-from prioritization.historical import (
+from prioritization.original import (
     AGGREGATORS,
     DECREASING_IMPORTANCE_SUFFIXES,
     FEATURE_RANKERS,
@@ -24,7 +24,7 @@ from prioritization.historical import (
 INDIVIDUAL = ROOT / "results/feature_selection_recomputed/individual"
 IDENTITY = ROOT / "results/biological_eda/supporting_data/feature_identity_audit.tsv"
 ENSEMBLE_58 = ROOT / "results/feature_selection_recomputed/ensembles"
-HISTORICAL_TOP20 = ROOT / "results/feature_selection_recomputed/reference/cell23_historical_top20.json"
+ORIGINAL_TOP20 = ROOT / "results/feature_selection_recomputed/reference/cell23_original_top20.json"
 DATASETS = ("ROSMAP", "GSE120584", "GSE215789")
 EXPECTED = {"ROSMAP": 309, "GSE120584": 2521, "GSE215789": 1137}
 CANDIDATES = ("hsa-miR-324-3p", "hsa-miR-574-3p", "hsa-miR-769-3p")
@@ -75,7 +75,7 @@ def score_maps(rankings: dict[str, dict[str, pd.DataFrame]], dataset: str) -> di
 
 
 def run_aggregator(weights: dict[str, dict[str, float]], aggregator: str) -> dict[str, float]:
-    """Historical aggregator on one complete dataset. Intersection removes nothing."""
+    """Original aggregator on one complete dataset. Intersection removes nothing."""
     decreasing = [key for key in weights if key.split(":")[-1] in DECREASING_IMPORTANCE_SUFFIXES]
     ranker = EnsembleFeatureRanker(
         feature_weights=weights,

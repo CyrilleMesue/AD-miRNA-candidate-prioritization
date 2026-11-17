@@ -8,7 +8,7 @@ from pathlib import Path
 import pandas as pd
 from collections import defaultdict
 
-from prioritization.historical import (
+from prioritization.original import (
     ad_mirna_target_pipeline,
     get_mirna_versions,
     mirtarbase_query_names,
@@ -160,9 +160,9 @@ def attach_logfc(stage1, keep_ranks, de_tables) -> pd.DataFrame:
 def target_association_pass(stage2: pd.DataFrame, dbs: dict) -> dict:
     """Notebook 11 cells 45-63, without replacing stage2 from a saved CSV.
 
-    The historical notebook reloaded data/stage2-selected-miRNA-and-targets.csv
+    The original notebook reloaded data/stage2-selected-miRNA-and-targets.csv
     at cell 45. Pass the computed stage2 here. To match that executed
-    session, pass the historical CSV instead.
+    session, pass the original CSV instead.
     """
     df1 = stage2[stage2.FeatureType == "miR"].copy()
     unexplored = list(stage2[stage2.FeatureType == "miR"].Feature.unique())

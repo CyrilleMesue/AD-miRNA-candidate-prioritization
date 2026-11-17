@@ -20,7 +20,7 @@ from ensemble_common import (
     ENSEMBLE_58,
     EXPECTED,
     FEATURE_RANKERS,
-    HISTORICAL_TOP20,
+    ORIGINAL_TOP20,
     INDIVIDUAL,
     OUT,
     PRIMARY_RULE,
@@ -215,7 +215,7 @@ def candidate_tables(tables: dict[str, pd.DataFrame], integrated: pd.DataFrame) 
     pd.DataFrame(individual_rows).to_csv(folder / "candidate_individual_method_ranks.csv", index=False)
     pd.DataFrame(ensemble_rows).to_csv(folder / "candidate_dataset_ensemble_ranks.csv", index=False)
 
-    historical = pd.read_csv(ENSEMBLE_58 / "ensemble_rankings.csv")
+    original = pd.read_csv(ENSEMBLE_58 / "ensemble_rankings.csv")
     cross_rows = []
     for candidate in CANDIDATES:
         match = integrated[
@@ -228,9 +228,9 @@ def candidate_tables(tables: dict[str, pd.DataFrame], integrated: pd.DataFrame) 
             cross_rows.append({"candidate": candidate, "present_in_resolved_union": False})
             continue
         row = match.iloc[0]
-        historical_match = historical[historical["feature_id"].str.lower() == candidate.lower()]
+        original_match = original[original["feature_id"].str.lower() == candidate.lower()]
         for aggregator in AGGREGATORS:
-            prior = historical_match[historical_match["aggregator"] == aggregator]
+            prior = original_match[original_match["aggregator"] == aggregator]
             cross_rows.append(
                 {
                     "candidate": candidate,
@@ -259,34 +259,34 @@ def candidate_tables(tables: dict[str, pd.DataFrame], integrated: pd.DataFrame) 
             )
     pd.DataFrame(cross_rows).to_csv(folder / "candidate_cross_dataset_summary.csv", index=False)
 
-    printed = json.loads(HISTORICAL_TOP20.read_text())
+    printed = json.loads(ORIGINAL_TOP20.read_text())
     comparison_rows = []
     for candidate in CANDIDATES:
         for aggregator in AGGREGATORS:
             names = [name.lower() for name in printed.get(aggregator.upper(), [])]
-            prior = historical[(historical["aggregator"] == aggregator) & (historical["feature_id"].str.lower() == candidate.lower())]
+            prior = original[(original["aggregator"] == aggregator) & (original["feature_id"].str.lower() == candidate.lower())]
             comparison_rows.append(
                 {
                     "candidate": candidate,
                     "aggregator": aggregator,
-                    "in_historical_printed_top20": candidate.lower() in names,
-                    "historical_printed_position": names.index(candidate.lower()) + 1 if candidate.lower() in names else np.nan,
+                    "in_original_printed_top20": candidate.lower() in names,
+                    "original_printed_position": names.index(candidate.lower()) + 1 if candidate.lower() in names else np.nan,
                     "rank_in_recomputed_58": int(prior["ensemble_rank"].iloc[0]) if len(prior) else np.nan,
                     "reference_universe": "58-name complete-case ensemble",
                 }
             )
-    pd.DataFrame(comparison_rows).to_csv(folder / "candidate_historical_comparison.csv", index=False)
+    pd.DataFrame(comparison_rows).to_csv(folder / "candidate_original_comparison.csv", index=False)
 
 
 def compare_top20(tables: dict[str, pd.DataFrame], integrated: pd.DataFrame) -> None:
-    historical = json.loads(HISTORICAL_TOP20.read_text())
+    original = json.loads(ORIGINAL_TOP20.read_text())
     recomputed = pd.read_csv(ENSEMBLE_58 / "ensemble_rankings.csv")
     rows = []
     for dataset, table in tables.items():
         top = table.nsmallest(20, "dataset_summary_rank")
         resolved_top = [name.lower() for name in top["resolved_mature_mirna_id"].fillna("") if name]
         for aggregator in AGGREGATORS:
-            printed = [name.lower() for name in historical.get(aggregator.upper(), [])]
+            printed = [name.lower() for name in original.get(aggregator.upper(), [])]
             prior = recomputed[recomputed["aggregator"] == aggregator]
             shared = table[table["resolved_mature_mirna_id"].str.lower().isin(prior["feature_id"].str.lower())]
             if len(shared) > 2:
@@ -300,7 +300,7 @@ def compare_top20(tables: dict[str, pd.DataFrame], integrated: pd.DataFrame) -> 
                 rho = np.nan
             rows.append(
                 {
-                    "comparison": "dataset_median_percentile_top20_vs_historical_printed_top20",
+                    "comparison": "dataset_median_percentile_top20_vs_original_printed_top20",
                     "dataset": dataset,
                     "aggregator": aggregator,
                     "new_universe_n": EXPECTED[dataset],
@@ -313,7 +313,7 @@ def compare_top20(tables: dict[str, pd.DataFrame], integrated: pd.DataFrame) -> 
         name.lower() for name in integrated.nsmallest(20, "primary_rank")["resolved_mature_mirna_id"]
     ]
     for aggregator in AGGREGATORS:
-        printed = [name.lower() for name in historical.get(aggregator.upper(), [])]
+        printed = [name.lower() for name in original.get(aggregator.upper(), [])]
         prior = recomputed[recomputed["aggregator"] == aggregator].copy()
         prior["key"] = prior["feature_id"].str.lower()
         complete = integrated[integrated["n_datasets"] == 3].copy()
@@ -322,7 +322,7 @@ def compare_top20(tables: dict[str, pd.DataFrame], integrated: pd.DataFrame) -> 
         rho = float(spearmanr(joined["mean_available_percentile"], joined["ensemble_rank"]).statistic) if len(joined) > 2 else np.nan
         rows.append(
             {
-                "comparison": "primary_top20_vs_historical_printed_top20",
+                "comparison": "primary_top20_vs_original_printed_top20",
                 "dataset": "coverage_aware_union",
                 "aggregator": aggregator,
                 "new_universe_n": int(integrated.shape[0]),
@@ -331,7 +331,7 @@ def compare_top20(tables: dict[str, pd.DataFrame], integrated: pd.DataFrame) -> 
                 "spearman_of_shared_resolved_ids": rho,
             }
         )
-    pd.DataFrame(rows).to_csv(OUT / "validation" / "historical_comparison.csv", index=False)
+    pd.DataFrame(rows).to_csv(OUT / "validation" / "original_comparison.csv", index=False)
 
 
 def main() -> None:

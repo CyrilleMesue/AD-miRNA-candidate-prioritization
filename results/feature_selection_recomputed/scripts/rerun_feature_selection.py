@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """New recomputation of the 13 individual rankers and 12 ensemble aggregators.
 
-This is not a recovery of the missing historical scores. It calls the
+This is not a recovery of the missing original scores. It calls the
 existing DifferentiatingFactorAnalysis and EnsembleFeatureRanker
 implementations. Each method–dataset result is written as soon as that
 method returns, so a later failure does not discard earlier results.
@@ -18,7 +18,7 @@ import traceback
 import warnings
 from pathlib import Path
 
-# Headless plotting. The historical functions still build figures.
+# Headless plotting. The original functions still build figures.
 # Agg avoids a display requirement and does not change the stored scores.
 os.environ.setdefault("MPLBACKEND", "Agg")
 
@@ -47,7 +47,7 @@ if not hasattr(np, "bool"):
 
 from modules.differentialAnalysis.differential_analysis import DifferentiatingFactorAnalysis
 from modules.featureSelection.ensemble_feature_selection import EnsembleFeatureRanker
-from prioritization.historical import (
+from prioritization.original import (
     AGGREGATORS,
     DECREASING_IMPORTANCE_SUFFIXES,
     FEATURE_RANKERS,
@@ -64,9 +64,9 @@ for path in (INDIVIDUAL, ENSEMBLE, VALIDATION, REFERENCE):
 
 DATASETS = ("ROSMAP", "GSE120584", "GSE215789")
 SMALLER_IS_BETTER = {"t_test", "boruta", "mannwhitneyu", "svm_rfe"}
-# Historical run_all_analyses order. Later methods can see numpy state,
+# Original run_all_analyses order. Later methods can see numpy state,
 # and two importance scores reuse models fitted by SHAP and LIME.
-HISTORICAL_ORDER = [
+ORIGINAL_ORDER = [
     "shap",
     "lime",
     "t_test",
@@ -219,7 +219,7 @@ def call_method(analyzer, method: str) -> None:
 
 def methods_required_this_process(dataset: str) -> list[str]:
     """Replay ancestors when a dependent still has to be computed in this process."""
-    missing = {method for method in HISTORICAL_ORDER if not is_complete(dataset, method)}
+    missing = {method for method in ORIGINAL_ORDER if not is_complete(dataset, method)}
     if not missing:
         return []
     required = set(missing)
@@ -234,7 +234,7 @@ def methods_required_this_process(dataset: str) -> list[str]:
         required.update({"t_test", "lasso"})
     elif "lasso" in required:
         required.add("t_test")
-    return [method for method in HISTORICAL_ORDER if method in required]
+    return [method for method in ORIGINAL_ORDER if method in required]
 
 
 def run_dataset(dataset: str, frame: pd.DataFrame, checksums: dict) -> None:
@@ -259,7 +259,7 @@ def run_dataset(dataset: str, frame: pd.DataFrame, checksums: dict) -> None:
         show_plots=False,
         verbose=False,
     )
-    for method in HISTORICAL_ORDER:
+    for method in ORIGINAL_ORDER:
         if method not in required:
             continue
         if method == "xgb_feature_importance" and analyzer.fitted_model_xgb is None:
@@ -270,7 +270,7 @@ def run_dataset(dataset: str, frame: pd.DataFrame, checksums: dict) -> None:
                     "dataset": dataset,
                     "method": method,
                     "error_type": "BlockedByMissingModel",
-                    "error_message": "The historical XGBoost importance reads the SHAP model. SHAP did not leave a fitted model, so the seeded training-split fallback was not run.",
+                    "error_message": "The original XGBoost importance reads the SHAP model. SHAP did not leave a fitted model, so the seeded training-split fallback was not run.",
                     "input_checksums": checksums,
                 },
             )
@@ -283,7 +283,7 @@ def run_dataset(dataset: str, frame: pd.DataFrame, checksums: dict) -> None:
                     "dataset": dataset,
                     "method": method,
                     "error_type": "BlockedByMissingModel",
-                    "error_message": "The historical Random Forest importance reads the LIME forest. LIME did not leave a fitted model, so the n_estimators=100 fallback was not run.",
+                    "error_message": "The original Random Forest importance reads the LIME forest. LIME did not leave a fitted model, so the n_estimators=100 fallback was not run.",
                     "input_checksums": checksums,
                 },
             )
@@ -292,7 +292,7 @@ def run_dataset(dataset: str, frame: pd.DataFrame, checksums: dict) -> None:
             "dataset": dataset,
             "method": method,
             "analysis_label": "new_recomputed_run",
-            "not_a_historical_score_recovery": True,
+            "not_a_original_score_recovery": True,
             "input_checksums": checksums,
             "n_samples": int(frame.shape[0]),
             "class_counts": frame["Diagnosis"].value_counts().to_dict(),
@@ -323,7 +323,7 @@ def run_dataset(dataset: str, frame: pd.DataFrame, checksums: dict) -> None:
 def load_individual() -> dict:
     loaded = {}
     for dataset in DATASETS:
-        for method in HISTORICAL_ORDER:
+        for method in ORIGINAL_ORDER:
             csv_path, meta_path = result_paths(dataset, method)
             if not is_complete(dataset, method):
                 continue
@@ -332,8 +332,8 @@ def load_individual() -> dict:
     return loaded
 
 
-def historical_top20() -> dict:
-    destination = REFERENCE / "cell23_historical_top20.json"
+def original_top20() -> dict:
+    destination = REFERENCE / "cell23_original_top20.json"
     if destination.is_file():
         return json.loads(destination.read_text())
     notebook = json.loads(NOTEBOOK.read_text())
@@ -397,12 +397,12 @@ def run_ensembles(checksums: dict) -> None:
         json.dumps(
             {
                 "analysis_label": "new_recomputed_run",
-                "not_a_historical_score_recovery": True,
+                "not_a_original_score_recovery": True,
                 "n_individual_keys": len(present),
                 "n_aggregators": len(aggregated),
                 "decreasing_importance_cases": decreasing,
                 "input_checksums": checksums,
-                "note": "Features absent from any supplied individual dictionary are dropped by DataFrame.dropna inside the historical ensemble functions.",
+                "note": "Features absent from any supplied individual dictionary are dropped by DataFrame.dropna inside the original ensemble functions.",
             },
             indent=2,
         )
@@ -410,16 +410,16 @@ def run_ensembles(checksums: dict) -> None:
 
 
 def compare_top20() -> None:
-    historical = historical_top20()
+    original = original_top20()
     rows = []
-    for aggregator, historical_names in historical.items():
+    for aggregator, original_names in original.items():
         key = aggregator.lower()
         path = ENSEMBLE / f"{key}_top20.json"
         if not path.is_file():
             rows.append(
                 {
                     "aggregator": key,
-                    "historical_n": len(historical_names),
+                    "original_n": len(original_names),
                     "recomputed_n": 0,
                     "overlap": 0,
                     "jaccard": np.nan,
@@ -428,16 +428,16 @@ def compare_top20() -> None:
             )
             continue
         recomputed = json.loads(path.read_text())
-        shared = [name for name in recomputed if name in historical_names]
-        union = len(set(recomputed) | set(historical_names))
+        shared = [name for name in recomputed if name in original_names]
+        union = len(set(recomputed) | set(original_names))
         both = [name for name in shared]
         if len(both) > 1:
-            historical_rank = {name: i + 1 for i, name in enumerate(historical_names)}
+            original_rank = {name: i + 1 for i, name in enumerate(original_names)}
             recomputed_rank = {name: i + 1 for i, name in enumerate(recomputed)}
             from scipy.stats import spearmanr
 
             rho = spearmanr(
-                [historical_rank[name] for name in both],
+                [original_rank[name] for name in both],
                 [recomputed_rank[name] for name in both],
             ).statistic
         else:
@@ -445,15 +445,15 @@ def compare_top20() -> None:
         rows.append(
             {
                 "aggregator": key,
-                "historical_n": len(historical_names),
+                "original_n": len(original_names),
                 "recomputed_n": len(recomputed),
                 "overlap": len(shared),
                 "jaccard": len(shared) / union if union else np.nan,
                 "spearman_of_shared_top20_positions": rho,
-                "historical_top20": "|".join(historical_names),
+                "original_top20": "|".join(original_names),
                 "recomputed_top20": "|".join(recomputed),
                 "status": "compared",
-                "interpretation": "Aggregate name-list check only. It does not validate the missing historical individual scores.",
+                "interpretation": "Aggregate name-list check only. It does not validate the missing original individual scores.",
             }
         )
     pd.DataFrame(rows).to_csv(VALIDATION / "ensemble_top20_comparison.csv", index=False)
@@ -465,7 +465,7 @@ def individual_agreement() -> None:
     rows = []
     for dataset in DATASETS:
         tables = {}
-        for method in HISTORICAL_ORDER:
+        for method in ORIGINAL_ORDER:
             if not is_complete(dataset, method):
                 continue
             frame = pd.read_csv(result_paths(dataset, method)[0]).set_index("feature_id")
@@ -493,7 +493,7 @@ def individual_agreement() -> None:
                         "kendall_tau_b": tau,
                         "top20_overlap": int(len(left_top & right_top)),
                         "top20_jaccard": len(left_top & right_top) / len(left_top | right_top),
-                        "top20_definition": "stable rank <= 20; k=20 is the historical SVM-RFE selection size and ensemble display length",
+                        "top20_definition": "stable rank <= 20; k=20 is the original SVM-RFE selection size and ensemble display length",
                         "score_orientation": "smaller-is-better scores were multiplied by -1 before correlation",
                         "analysis_label": "new_recomputed_run",
                     }
@@ -514,7 +514,7 @@ def cross_dataset() -> None:
         group = group[group["resolved_mature_id"].isin(unique_ids)]
         mapping[dataset] = dict(zip(group["feature_id"], group["resolved_mature_id"]))
     rows = []
-    for method in HISTORICAL_ORDER:
+    for method in ORIGINAL_ORDER:
         ranks = {}
         for dataset in DATASETS:
             if not is_complete(dataset, method):
@@ -580,7 +580,7 @@ def main() -> None:
         for name in ("ROSMAP", "GSE120584", "GSE215789"):
             run_dataset(name, datasets[name], checksums)
     if stage in {"all", "ensemble"}:
-        historical_top20()
+        original_top20()
         run_ensembles(checksums)
         compare_top20()
         individual_agreement()

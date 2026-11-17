@@ -1,10 +1,10 @@
 #!/usr/bin/env python
-"""Reproduce the historical column-centered PCA and its outlier screen.
+"""Reproduce the original column-centered PCA and its outlier screen.
 
 Uses eda.exploratory_analysis and prioritization.matrices. Does not edit
 processed matrices, rankings, or differential-expression results.
 
-python results/eda_consolidated/pca_reproduction/scripts/reproduce_historical_pca.py
+python results/eda_consolidated/pca_reproduction/scripts/reproduce_original_pca.py
 """
 from __future__ import annotations
 
@@ -34,7 +34,7 @@ REPORTS = OUT / "reports"
 CONSOLIDATED = ROOT / "results/eda_consolidated"
 PLOTS = CONSOLIDATED / "plotting_data"
 EDA = ROOT / "results/eda"
-ARCHIVE = CONSOLIDATED / "historical_svg_reconstruction"
+ARCHIVE = CONSOLIDATED / "original_svg_reconstruction"
 
 PATHS = {
     "rosmap": str(ROOT / "data/processed/ROSMAP_brain_norm.csv"),
@@ -112,14 +112,14 @@ def match_cloud(reproduced: np.ndarray, svg: np.ndarray, diagnoses_reproduced: n
 def main() -> None:
     TABLES.mkdir(parents=True, exist_ok=True)
     REPORTS.mkdir(parents=True, exist_ok=True)
-    historical_inputs = pd.read_csv(EDA / "input_files.csv")
+    original_inputs = pd.read_csv(EDA / "input_files.csv")
     checksums = []
-    for row in historical_inputs.itertuples(index=False):
+    for row in original_inputs.itertuples(index=False):
         current = file_record(row.path)
         checksums.append(
             {
                 "path": row.path,
-                "historical_sha256": row.sha256,
+                "original_sha256": row.sha256,
                 "recomputed_sha256": current["sha256"],
                 "bytes": current["bytes"],
                 "match": current["sha256"] == row.sha256,
@@ -131,9 +131,9 @@ def main() -> None:
     datasets = load_matrices(PATHS)
     summary, fitted = fit_dataset_pca(datasets)
     outliers = assess_outliers(fitted)
-    historical_summary = pd.read_csv(EDA / "pca_summary.csv").set_index("dataset")
-    historical_outliers = pd.read_csv(EDA / "outlier_summary.csv")
-    historical_samples = historical_outliers[historical_outliers["row_type"] == "sample"]
+    original_summary = pd.read_csv(EDA / "pca_summary.csv").set_index("dataset")
+    original_outliers = pd.read_csv(EDA / "outlier_summary.csv")
+    original_samples = original_outliers[original_outliers["row_type"] == "sample"]
 
     score_rows = []
     validation_rows = []
@@ -158,8 +158,8 @@ def main() -> None:
         )
         reproduced_pc1 = float(fitted[name]["explained"][0])
         reproduced_pc2 = float(fitted[name]["explained"][1])
-        saved_pc1 = float(historical_summary.loc[name, "variance_pc1"])
-        saved_pc2 = float(historical_summary.loc[name, "variance_pc2"])
+        saved_pc1 = float(original_summary.loc[name, "variance_pc1"])
+        saved_pc2 = float(original_summary.loc[name, "variance_pc2"])
         variance_delta = max(abs(reproduced_pc1 - saved_pc1), abs(reproduced_pc2 - saved_pc2))
         rounded_ok = (
             abs(reproduced_pc1 - ROUNDED_VARIANCE[name][0]) < 5e-7
@@ -171,21 +171,21 @@ def main() -> None:
         sample_ids = fitted[name]["sample_id"]
         diagnosis = fitted[name]["diagnosis"]
         flagged = fitted[name]["flagged"]
-        historical_flagged = historical_samples[historical_samples["dataset"] == name]
+        original_flagged = original_samples[original_samples["dataset"] == name]
         reproduced_ids = list(sample_ids[flagged])
-        historical_ids = historical_flagged["sample_id"].astype(str).tolist()
-        historical_order = historical_outliers.loc[
-            (historical_outliers["row_type"] == "dataset") & (historical_outliers["dataset"] == name),
+        original_ids = original_flagged["sample_id"].astype(str).tolist()
+        original_order = original_outliers.loc[
+            (original_outliers["row_type"] == "dataset") & (original_outliers["dataset"] == name),
             "flagged_sample_ids",
         ].iloc[0].split(";")
-        id_set_match = reproduced_ids == historical_ids and reproduced_ids == historical_order
-        diagnosis_match = list(diagnosis[flagged]) == historical_flagged["diagnosis"].astype(str).tolist()
+        id_set_match = reproduced_ids == original_ids and reproduced_ids == original_order
+        diagnosis_match = list(diagnosis[flagged]) == original_flagged["diagnosis"].astype(str).tolist()
 
         aligned_sign = (1.0, 1.0)
         flagged_coordinate_error = float("nan")
-        if id_set_match and len(historical_ids):
+        if id_set_match and len(original_ids):
             reproduced_flagged = raw_scores[flagged]
-            reference = historical_flagged[["pc1", "pc2"]].to_numpy(dtype=float)
+            reference = original_flagged[["pc1", "pc2"]].to_numpy(dtype=float)
             aligned_sign, flagged_coordinate_error = choose_sign(reproduced_flagged, reference)
         gate4 = bool(id_set_match and diagnosis_match and flagged_coordinate_error < 1e-8)
 
@@ -234,15 +234,15 @@ def main() -> None:
                 "n_ad": int(counts.get("AD", 0)),
                 "n_control": int(counts.get("Control", 0)),
                 "n_missing": missing,
-                "historical_variance_pc1": saved_pc1,
+                "original_variance_pc1": saved_pc1,
                 "reproduced_variance_pc1": reproduced_pc1,
-                "historical_variance_pc2": saved_pc2,
+                "original_variance_pc2": saved_pc2,
                 "reproduced_variance_pc2": reproduced_pc2,
                 "variance_abs_delta": variance_delta,
                 "sign_pc1": aligned_sign[0],
                 "sign_pc2": aligned_sign[1],
                 "n_flagged_reproduced": int(flagged.sum()),
-                "n_flagged_historical": int(len(historical_ids)),
+                "n_flagged_original": int(len(original_ids)),
                 "outlier_ids_match": id_set_match,
                 "outlier_diagnoses_match": diagnosis_match,
                 "flagged_coordinate_max_abs_error": flagged_coordinate_error,
@@ -272,24 +272,24 @@ def main() -> None:
                 "min_gap_to_second_nearest": cloud["min_second_gap"],
                 "nearest_ties": cloud["ambiguous_nearest_ties"],
                 "diagnosis_matches": cloud["diagnosis_matches"],
-                "comparison": "Nearest SVG point after aligning component signs to historical outlier coordinates. No sample identifier is written onto the SVG table.",
+                "comparison": "Nearest SVG point after aligning component signs to original outlier coordinates. No sample identifier is written onto the SVG table.",
             }
         )
-        for sample_id, label, historical_row in zip(reproduced_ids, diagnosis[flagged], historical_flagged.itertuples(index=False), strict=True):
+        for sample_id, label, original_row in zip(reproduced_ids, diagnosis[flagged], original_flagged.itertuples(index=False), strict=True):
             position = int(np.where(sample_ids == sample_id)[0][0])
             outlier_rows.append(
                 {
                     "dataset": name,
                     "sample_id": sample_id,
                     "reproduced_diagnosis": label,
-                    "historical_diagnosis": historical_row.diagnosis,
+                    "original_diagnosis": original_row.diagnosis,
                     "reproduced_pc1": float(aligned_scores[position, 0]),
-                    "historical_pc1": float(historical_row.pc1),
+                    "original_pc1": float(original_row.pc1),
                     "reproduced_pc2": float(aligned_scores[position, 1]),
-                    "historical_pc2": float(historical_row.pc2),
+                    "original_pc2": float(original_row.pc2),
                     "reproduced_distance": float(fitted[name]["robust_distance_squared"][position]),
-                    "historical_distance": float(historical_row.robust_distance_squared),
-                    "identity_match": sample_id == historical_row.sample_id and label == historical_row.diagnosis,
+                    "original_distance": float(original_row.robust_distance_squared),
+                    "identity_match": sample_id == original_row.sample_id and label == original_row.diagnosis,
                 }
             )
         for index, sample_id in enumerate(sample_ids):
@@ -327,7 +327,7 @@ def main() -> None:
     if not all_pass:
         write_report(checksums, validation, coordinate_comparison, all_pass, figures_updated=False)
         raise SystemExit("PCA reproduction did not pass every validation gate. Figures were not changed.")
-    archive_historical_outputs()
+    archive_original_outputs()
     publish_plotting_tables(scores)
     redraw_pca_figures(scores)
     update_captions()
@@ -338,7 +338,7 @@ def write_report(checksums: list[dict], validation: pd.DataFrame, coordinates: p
     lines = [
         "# PCA reproduction validation",
         "",
-        "The historical PCA was run again with the original loader and the original column-centered SVD. Processed files were not edited.",
+        "The original PCA was run again with the original loader and the original column-centered SVD. Processed files were not edited.",
         "",
         f"Overall result: {'all six gates passed' if all_pass else 'validation did not pass'}.",
         "",
@@ -346,10 +346,10 @@ def write_report(checksums: list[dict], validation: pd.DataFrame, coordinates: p
         "",
         "Located in `src/eda/exploratory_analysis.py` (`column_centered_pca`, `fit_dataset_pca`, `assess_outliers`) and called by `scripts/run_eda.py`.",
         "Matrices are built by `src/prioritization/matrices.py` `load_ranking_datasets`.",
-        "Scaling is `MinMaxScaler` in `src/prioritization/historical.py` `scale_dataframe`, fit on the full processed cohort before the AD/Control filter.",
+        "Scaling is `MinMaxScaler` in `src/prioritization/original.py` `scale_dataframe`, fit on the full processed cohort before the AD/Control filter.",
         "The unused GSE120584 downsample (`downsample_gse120584_unused`) is not called.",
         "",
-        "## 2. Historical input files",
+        "## 2. Original input files",
         "",
         "- `data/processed/ROSMAP_brain_norm.csv`",
         "- `data/processed/GSE120584_serum_norm.csv`",
@@ -377,9 +377,9 @@ def write_report(checksums: list[dict], validation: pd.DataFrame, coordinates: p
             "## 5. PCA algorithm",
             "",
             "Each feature is centered by its column mean. No second standardization is applied. `numpy.linalg.svd` is run with `full_matrices=False`. PC1 and PC2 scores are the centered matrix multiplied by the first two right singular vectors. Explained variance is the squared singular value divided by the sum of all squared singular values. Diagnosis is not an input to the decomposition.",
-            "Component signs were aligned to the historical outlier coordinates in `results/eda/outlier_summary.csv` by testing the four sign combinations and keeping the combination with the smallest maximum absolute coordinate error. That alignment is recorded below.",
+            "Component signs were aligned to the original outlier coordinates in `results/eda/outlier_summary.csv` by testing the four sign combinations and keeping the combination with the smallest maximum absolute coordinate error. That alignment is recorded below.",
             "",
-            "Outlier screen: for each of PC1 and PC2, subtract the median and divide by 1.4826 times the MAD. A component with MAD of 0 is omitted. The squared sum is compared with the chi-square 0.999 quantile on the remaining degrees of freedom. The historical threshold is 13.815510557964274. Flagged samples are not removed.",
+            "Outlier screen: for each of PC1 and PC2, subtract the median and divide by 1.4826 times the MAD. A component with MAD of 0 is omitted. The squared sum is compared with the chi-square 0.999 quantile on the remaining degrees of freedom. The original threshold is 13.815510557964274. Flagged samples are not removed.",
             "",
             "## 6. Dataset dimensions",
             "",
@@ -389,10 +389,10 @@ def write_report(checksums: list[dict], validation: pd.DataFrame, coordinates: p
         lines.append(
             f"- {row.dataset}: {row.n_samples} samples ({row.n_ad} AD, {row.n_control} Control), {row.n_features} features, {row.n_missing} missing values."
         )
-    lines.extend(["", "## 7. Explained variance", "", "Agreement with `results/eda/pca_summary.csv` is exact within 1e-12. The six-decimal historical references also agree within 5e-7.", ""])
+    lines.extend(["", "## 7. Explained variance", "", "Agreement with `results/eda/pca_summary.csv` is exact within 1e-12. The six-decimal original references also agree within 5e-7.", ""])
     for row in validation.itertuples(index=False):
         lines.append(
-            f"- {row.dataset}: historical PC1 {row.historical_variance_pc1:.12f}, reproduced {row.reproduced_variance_pc1:.12f}; historical PC2 {row.historical_variance_pc2:.12f}, reproduced {row.reproduced_variance_pc2:.12f}; absolute delta {row.variance_abs_delta:.3e}."
+            f"- {row.dataset}: original PC1 {row.original_variance_pc1:.12f}, reproduced {row.reproduced_variance_pc1:.12f}; original PC2 {row.original_variance_pc2:.12f}, reproduced {row.reproduced_variance_pc2:.12f}; absolute delta {row.variance_abs_delta:.3e}."
         )
     lines.extend(
         [
@@ -410,7 +410,7 @@ def write_report(checksums: list[dict], validation: pd.DataFrame, coordinates: p
     lines.extend(["", "## 9. Outlier identities", ""])
     for row in validation.itertuples(index=False):
         lines.append(
-            f"- {row.dataset}: reproduced {row.n_flagged_reproduced}, historical {row.n_flagged_historical}, ordered sample-identifier list {'matches' if row.outlier_ids_match else 'DOES NOT MATCH'}, diagnosis list {'matches' if row.outlier_diagnoses_match else 'DOES NOT MATCH'}, maximum absolute PC1/PC2 error after sign alignment {row.flagged_coordinate_max_abs_error:.3e}."
+            f"- {row.dataset}: reproduced {row.n_flagged_reproduced}, original {row.n_flagged_original}, ordered sample-identifier list {'matches' if row.outlier_ids_match else 'DOES NOT MATCH'}, diagnosis list {'matches' if row.outlier_diagnoses_match else 'DOES NOT MATCH'}, maximum absolute PC1/PC2 error after sign alignment {row.flagged_coordinate_max_abs_error:.3e}."
         )
     lines.extend(
         [
@@ -419,7 +419,7 @@ def write_report(checksums: list[dict], validation: pd.DataFrame, coordinates: p
             "",
             "## 10. Validation gates",
             "",
-            "Gate 1, input consistency: sample counts, diagnosis counts, feature counts, and zero missing values match the historical ranking matrices.",
+            "Gate 1, input consistency: sample counts, diagnosis counts, feature counts, and zero missing values match the original ranking matrices.",
             "Gate 2, explained variance: reproduced ratios match `pca_summary.csv` within 1e-12 and the six-decimal references within 5e-7.",
             "Gate 3, PCA geometry: the sign-aligned cloud matches the SVG-derived cloud under the nearest-point rule in section 8.",
             "Gate 4, outlier identities: ordered sample identifiers, diagnoses, and coordinates match `outlier_summary.csv`.",
@@ -439,7 +439,7 @@ def write_report(checksums: list[dict], validation: pd.DataFrame, coordinates: p
             "",
             "## 11. Discrepancies",
             "",
-            "No unresolved discrepancy is recorded when every gate above is true. Component sign is an arbitrary SVD convention; the saved scores use the sign that matches the historical outlier coordinates. SVG distances are reconstruction error from the original figure geometry, not a second decomposition.",
+            "No unresolved discrepancy is recorded when every gate above is true. Component sign is an arbitrary SVD convention; the saved scores use the sign that matches the original outlier coordinates. SVG distances are reconstruction error from the original figure geometry, not a second decomposition.",
             "",
             "## 12. Score table",
             "",
@@ -454,7 +454,7 @@ def write_report(checksums: list[dict], validation: pd.DataFrame, coordinates: p
                 "- `results/eda_consolidated/figures/final/figure1_sample_structure_pca.png` and the SVG and PDF copies\n"
                 "- `results/eda_consolidated/composite_figures/figure_eda_01_dataset_structure.png` and the SVG and PDF copies\n\n"
                 "Composite figure 2 was not rewritten. Panels D and E of composite figure 1 still use the saved sample-mean and exact-zero tables.\n"
-                "The previous SVG-derived PCA figure, composite figure 1, coordinate tables, and provenance report were copied to `results/eda_consolidated/historical_svg_reconstruction/` before replacement."
+                "The previous SVG-derived PCA figure, composite figure 1, coordinate tables, and provenance report were copied to `results/eda_consolidated/original_svg_reconstruction/` before replacement."
                 if figures_updated
                 else "Figures were not replaced because at least one gate failed."
             ),
@@ -462,13 +462,13 @@ def write_report(checksums: list[dict], validation: pd.DataFrame, coordinates: p
             "## 14. Reproduction",
             "",
             "```bash",
-            "python results/eda_consolidated/pca_reproduction/scripts/reproduce_historical_pca.py",
+            "python results/eda_consolidated/pca_reproduction/scripts/reproduce_original_pca.py",
             "```",
             "",
             "## 15. Remaining limitations",
             "",
             "The SVG files still do not contain sample identifiers. Geometric agreement with those files supports the point cloud; the sample identifiers in the score table come from the ranking-matrix index used by the original PCA function, and the 17 flagged identities are confirmed against `outlier_summary.csv`.",
-            "PCA signs are arbitrary. The table stores the sign convention of the historical outlier coordinates.",
+            "PCA signs are arbitrary. The table stores the sign convention of the original outlier coordinates.",
             "Flagged observations remain in every figure. The screen is descriptive and is not a technical-failure confirmation.",
             "This reproduction does not refit feature selection, ensemble ranking, or differential expression.",
             "",
@@ -484,7 +484,7 @@ def write_report(checksums: list[dict], validation: pd.DataFrame, coordinates: p
     (REPORTS / "PCA_REPRODUCTION_VALIDATION.md").write_text("\n".join(lines), encoding="utf-8")
 
 
-def archive_historical_outputs() -> None:
+def archive_original_outputs() -> None:
     copies = [
         CONSOLIDATED / "figures/final/figure1_sample_structure_pca.png",
         CONSOLIDATED / "figures/final/figure1_sample_structure_pca.svg",
@@ -557,9 +557,9 @@ def update_captions() -> None:
         "Those SVG files do not store sample identifiers, so this figure is not a recovered sample-level score matrix. "
     )
     new = (
-        "Point coordinates are the reproduced column-centered SVD scores of the historical ranking matrices, "
+        "Point coordinates are the reproduced column-centered SVD scores of the original ranking matrices, "
         "with the sample identifier and diagnosis taken from each matrix. "
-        "Component signs follow the historical outlier-coordinate convention. "
+        "Component signs follow the original outlier-coordinate convention. "
     )
     standalone = CONSOLIDATED / "figures/final/figure1_sample_structure_pca_caption.txt"
     text = standalone.read_text(encoding="utf-8")
@@ -573,10 +573,10 @@ def update_captions() -> None:
         "and the points cannot be joined back to metadata by sample ID. "
     )
     composite_new = (
-        "Coordinates in A–C are the reproduced column-centered SVD scores of the historical ranking matrices. "
+        "Coordinates in A–C are the reproduced column-centered SVD scores of the original ranking matrices. "
         "Each point keeps the sample identifier and diagnosis from that matrix. "
-        "The scores match the historical explained-variance ratios, the historical outlier sample identifiers, "
-        "and the SVG-derived point cloud after component signs are aligned to the historical outlier coordinates. "
+        "The scores match the original explained-variance ratios, the original outlier sample identifiers, "
+        "and the SVG-derived point cloud after component signs are aligned to the original outlier coordinates. "
     )
     composite_text = composite.read_text(encoding="utf-8")
     if composite_old not in composite_text:

@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(ROOT)); sys.path.insert(0, str(ROOT / "src"))
 import pandas as pd
 from prioritization.candidate_selection import load_annotation_tables, load_differential_tables
-from prioritization.historical import get_mirna_versions, mirtarbase_query_names
+from prioritization.original import get_mirna_versions, mirtarbase_query_names
 from scripts.run_pipeline import load_config, resolve
 
 cfg = load_config(str(ROOT / "config/analysis_config.yaml"))

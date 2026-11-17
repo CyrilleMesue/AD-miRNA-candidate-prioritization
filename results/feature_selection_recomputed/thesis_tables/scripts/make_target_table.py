@@ -13,7 +13,7 @@ sys.path.insert(0, str(ROOT)); sys.path.insert(0, str(ROOT / "src"))
 import pandas as pd
 
 from prioritization.candidate_selection import load_annotation_tables
-from prioritization.historical import get_mirna_versions, sort_dict_features
+from prioritization.original import get_mirna_versions, sort_dict_features
 from scripts.run_pipeline import load_config, resolve
 
 out = Path(sys.argv[1])

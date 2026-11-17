@@ -1,4 +1,4 @@
-"""Notebook 11 helper functions, copied from the historical notebook.
+"""Notebook 11 helper functions, copied from the original notebook.
 
 Source notebook:
     notebooks/11.BIOMARKER SELECTION FOR DOWNSTREAM VALIDATION.ipynb
@@ -6,7 +6,7 @@ Cells: scale_dataframe, sort_dict_features, get_mirna_versions,
 ad_mirna_target_pipeline, and the manual Literature_Review table.
 
 Do not change thresholds, weights, or filters in this file.
-Known historical quirks are documented in docs/IMPLEMENTATION_NOTES.md.
+Known original quirks are documented in docs/IMPLEMENTATION_NOTES.md.
 """
 from sklearn.preprocessing import MinMaxScaler
 import pandas as pd

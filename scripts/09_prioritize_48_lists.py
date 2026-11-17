@@ -31,7 +31,7 @@ sys.path.insert(0, str(ROOT / "src"))
 import pandas as pd
 
 from prioritization.candidate_selection import load_annotation_tables, run_stage1, target_association_pass
-from prioritization.historical import get_mirna_versions, sort_dict_features
+from prioritization.original import get_mirna_versions, sort_dict_features
 from scripts.run_pipeline import load_config, resolve
 
 FS = ROOT / "results/feature_selection_recomputed"

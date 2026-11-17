@@ -2,7 +2,7 @@
 """Write the feature-selection results-audit tables.
 
 This script does not fit models, does not read expression matrices, and does
-not create rankings. It records the 13 method keys from the historical call,
+not create rankings. It records the 13 method keys from the original call,
 the absence of the 39 score dictionaries, and identifier-coverage counts
 already published by the biological EDA.
 """
@@ -192,7 +192,7 @@ def main() -> None:
                     "display_name": method["display_name"],
                     "expected_dictionary_key": f"{dataset['dataset']}:{method['method']}",
                     "expected_output_file": "results/rankings/individual_rankings.json",
-                    "historical_notebook_output": "Cell 14 printed the integer 39. The dictionaries were not written to the cell output.",
+                    "original_notebook_output": "Cell 14 printed the integer 39. The dictionaries were not written to the cell output.",
                     "output_present_in_this_repository": "no",
                     "n_ranked_features": "",
                     "expected_n_features_in_ranking_matrix": dataset["expected_n_features"],
@@ -237,7 +237,7 @@ def main() -> None:
                     "value": "",
                     "status": NOT_COMPUTED,
                     "reason": "The 13 score dictionaries for this dataset were not saved. Rank correlation and top-k overlap were not calculated.",
-                    "calculation_class": "not_a_historical_result",
+                    "calculation_class": "not_a_original_result",
                 }
             )
     agreement = pd.DataFrame(agreement_rows)
@@ -311,7 +311,7 @@ def main() -> None:
                 "methods": "shap, lime, t_test, randomforest_feature_importance, xgb_feature_importance, permutation_feature_importance",
                 "n_features": 2743,
                 "decision": "excluded",
-                "reason": "Six methods, a single permutation key, and 2743 features. The historical cell uses 13 methods and the ranking matrix has 1137 miRNAs.",
+                "reason": "Six methods, a single permutation key, and 2743 features. The original cell uses 13 methods and the ranking matrix has 1137 miRNAs.",
             },
             {
                 "path": "Alzheimers-Multi-Omics-Analysis/results/GSE120584_serum_microRNA/feature_importances.json",
@@ -319,7 +319,7 @@ def main() -> None:
                 "methods": "shap, lime, t_test, randomforest_feature_importance, xgb_feature_importance, permutation_feature_importance",
                 "n_features": 2521,
                 "decision": "excluded",
-                "reason": "Six methods and one permutation key. The historical cell uses 13 methods, including separate Random Forest and XGBoost permutation keys.",
+                "reason": "Six methods and one permutation key. The original cell uses 13 methods, including separate Random Forest and XGBoost permutation keys.",
             },
             {
                 "path": "Alzheimers-Multi-Omics-Analysis/results/ROSMAP_microRNA_exosome/feature_importances.json",
@@ -327,7 +327,7 @@ def main() -> None:
                 "methods": "shap, lime, t_test, randomforest_feature_importance, xgb_feature_importance, permutation_feature_importance",
                 "n_features": 233,
                 "decision": "excluded",
-                "reason": "Six methods and 233 features. The historical ROSMAP ranking matrix has 309 miRNAs.",
+                "reason": "Six methods and 233 features. The original ROSMAP ranking matrix has 309 miRNAs.",
             },
             {
                 "path": "Alzheimers-Multi-Omics-Analysis/results/ROSMAP_microRNA_test/feature_importances.json",

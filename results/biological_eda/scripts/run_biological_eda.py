@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-"""Literature-guided biological EDA of the three historical AD miRNA datasets.
+"""Literature-guided biological EDA of the three original AD miRNA datasets.
 
 Reads the ranking-cohort matrices and linked metadata. Does not modify
-historical files, rankings, or feature-selection rules.
+original files, rankings, or feature-selection rules.
 
 python results/biological_eda/scripts/run_biological_eda.py
 """
@@ -116,7 +116,7 @@ def classify_feature(name: str, inverse: dict[str, list[str]]) -> tuple[str, str
         return (
             "non-miRNA/control",
             "",
-            "Non-human historical feature. Excluded from the human mature intersection.",
+            "Non-human original feature. Excluded from the human mature intersection.",
         )
     if "/" in name or "_" in name:
         return (
@@ -542,7 +542,7 @@ def figure2(heterogeneity: pd.DataFrame) -> None:
     axes[2].text(
         0.0,
         0.72,
-        "Saved PCA scores do not cover the historical cohorts.\n"
+        "Saved PCA scores do not cover the original cohorts.\n"
         "Only PC1 and PC2 of flagged outliers were written.\n"
         "Associations were not recalculated.\n\n"
         "GSE215789 profile heterogeneity was not calculated.\n"
@@ -578,7 +578,7 @@ def feasibility_report(context: dict) -> str:
     lines = [
         "# EDA feasibility report",
         "",
-        "Feasibility follows the handoff conditions. An analysis marked completed used the historical files named here. An analysis marked NOT ASSESSABLE was not replaced.",
+        "Feasibility follows the handoff conditions. An analysis marked completed used the original files named here. An analysis marked NOT ASSESSABLE was not replaced.",
         "",
         "## Input roles",
         "",
@@ -594,14 +594,14 @@ def feasibility_report(context: dict) -> str:
         f"- GSE120584: {counts['GSE120584']['n_ad']} AD, {counts['GSE120584']['n_control']} Control, {counts['GSE120584']['n_features']} features.",
         f"- GSE215789: {counts['GSE215789']['n_ad']} AD, {counts['GSE215789']['n_control']} Control, {counts['GSE215789']['n_features']} features.",
         "",
-        "These match the expected historical ranking inputs. The unused GSE120584 downsample to 300 AD samples was not applied.",
+        "These match the expected original ranking inputs. The unused GSE120584 downsample to 300 AD samples was not applied.",
         "",
         "## Decisions",
         "",
         "| Analysis | Status | Reason |",
         "| --- | --- | --- |",
         "| A1 mature identity and coverage | Completed | Feature identifiers and the one-to-one project alias map are available. Names absent from that map stay unresolved. |",
-        "| A2 NanoString detection | NOT ASSESSABLE | No detection call or documented background rule is stored with the historical matrix. |",
+        "| A2 NanoString detection | NOT ASSESSABLE | No detection call or documented background rule is stored with the original matrix. |",
         "| A2 microarray detection | NOT ASSESSABLE | No detection flag or documented intensity threshold is stored. |",
         "| A2 sequencing read observation | Completed | Retained plasma features have finite, non-negative integer counts. Prevalence is count > 0. |",
         "| A3 metadata summaries | Completed for linked variables | Sample ID joins were one-to-one. Empty batch fields were left unused. Assay plate is populated and is crosstabulated. |",
@@ -661,7 +661,7 @@ def results_report(context: dict) -> str:
     lines = [
         "# Biological EDA results",
         "",
-        "These descriptions apply to the historical AD/Control ranking cohorts. They do not change feature selection or candidate ranking.",
+        "These descriptions apply to the original AD/Control ranking cohorts. They do not change feature selection or candidate ranking.",
         "",
         "## A1. Mature-miRNA identity and coverage",
         "",
@@ -680,7 +680,7 @@ def results_report(context: dict) -> str:
         "",
         f"ROSMAP and GSE120584 have the same resolved-name counts in the assay matrix and in the retained feature set. "
         f"GSE215789 has {int(plasma['resolved_in_original_assay_matrix'])} resolved names in the count matrix and "
-        f"{int(plasma['resolved_mature'])} in the retained feature set. The difference is the historical all-zero column filter, not a second identifier map.",
+        f"{int(plasma['resolved_mature'])} in the retained feature set. The difference is the original all-zero column filter, not a second identifier map.",
         "",
         "",
         f"Pairwise overlap of resolved names: ROSMAP ∩ GSE120584 = {coverage['rosmap_gse120584_overlap']} (Jaccard {fmt(coverage['rosmap_gse120584_jaccard'])}); "
@@ -712,7 +712,7 @@ def results_report(context: dict) -> str:
         "",
         "## A2. Detection and read observation",
         "",
-        "ROSMAP and GSE120584 detection prevalence are NOT ASSESSABLE. The historical files do not contain NanoString detection calls, negative-control background rules, or microarray detection flags. Normalized intensities and scaled zeros were not converted into detection calls.",
+        "ROSMAP and GSE120584 detection prevalence are NOT ASSESSABLE. The original files do not contain NanoString detection calls, negative-control background rules, or microarray detection flags. Normalized intensities and scaled zeros were not converted into detection calls.",
         "",
         "GSE215789 uses original mature-feature counts on the retained samples. A feature is read-observed in a sample when its count is greater than 0. This is not an analytical limit of detection.",
         "",
@@ -792,7 +792,7 @@ def reproducibility_report(context: dict) -> str:
         "python results/biological_eda/scripts/run_biological_eda.py",
         "```",
         "",
-        "The script reads historical files and writes only under `results/biological_eda/`.",
+        "The script reads original files and writes only under `results/biological_eda/`.",
         "",
         "## Software",
         "",
@@ -803,7 +803,7 @@ def reproducibility_report(context: dict) -> str:
         f"- matplotlib {versions['matplotlib']}",
         f"- Platform: {versions['platform']}",
         "",
-        "These are the versions used for this EDA. They are not claimed to be the historical Notebook 11 environment.",
+        "These are the versions used for this EDA. They are not claimed to be the original Notebook 11 environment.",
         "",
         "## Parameters",
         "",
@@ -866,8 +866,8 @@ def provenance_report(context: dict) -> str:
             "- ROSMAP probe names that omit the arm remain unresolved. Their absence from an intersection is an annotation limit.",
             "- Read observation is not analytical sensitivity, specificity, or a call against background.",
             "- Metadata summaries are descriptive. They are not disease-association models and they are not batch correction.",
-            "- Profile dissimilarity depends on the historical normalization and on the features retained before ranking. It is not a test of biological heterogeneity.",
-            "- No historical sample was removed beyond the diagnosis definition already used to build the ranking matrices. No ranking file was edited.",
+            "- Profile dissimilarity depends on the original normalization and on the features retained before ranking. It is not a test of biological heterogeneity.",
+            "- No original sample was removed beyond the diagnosis definition already used to build the ranking matrices. No ranking file was edited.",
             "",
         ]
     )
@@ -905,7 +905,7 @@ def main() -> None:
         n_ad = int((matrix["Diagnosis"] == "AD").sum())
         n_control = int((matrix["Diagnosis"] == "Control").sum())
         if (n_ad, n_control, len(features)) != expected[dataset]:
-            raise RuntimeError(f"{dataset} dimensions {(n_ad, n_control, len(features))} differ from the historical cohort")
+            raise RuntimeError(f"{dataset} dimensions {(n_ad, n_control, len(features))} differ from the original cohort")
         counts[dataset] = {"n_ad": n_ad, "n_control": n_control, "n_features": len(features), "n_samples": int(len(matrix))}
         raw_labels = ranking_labels(frame["Diagnosis"], collapse_ad=(dataset == "ROSMAP"))
         keep = raw_labels.isin(["AD", "Control"])
@@ -1049,12 +1049,12 @@ def main() -> None:
             {
                 "dataset": "ROSMAP",
                 "status": "NOT_ASSESSABLE",
-                "reason": "No NanoString detection call or documented background rule in the historical GCT or assay metadata.",
+                "reason": "No NanoString detection call or documented background rule in the original GCT or assay metadata.",
             },
             {
                 "dataset": "GSE120584",
                 "status": "NOT_ASSESSABLE",
-                "reason": "No microarray detection flag or documented threshold in the series matrix used historically.",
+                "reason": "No microarray detection flag or documented threshold in the series matrix used originally.",
             },
         ]
     )
@@ -1157,7 +1157,7 @@ def main() -> None:
             "source": str(PROCESSED["GSE120584"]),
             "join_key": "Sample ID",
             "status": "NOT_ASSESSABLE",
-            "note": "No hemolysis, platelet, cell-composition, or processing-batch field is stored on the historical sample tables.",
+            "note": "No hemolysis, platelet, cell-composition, or processing-batch field is stored on the original sample tables.",
         }
     )
     dictionary.append(
@@ -1234,7 +1234,7 @@ def main() -> None:
                 "level": "",
                 "n": "",
                 "status": "NOT_ASSESSABLE",
-                "note": "No batch identifier is present on the historical serum table.",
+                "note": "No batch identifier is present on the original serum table.",
             },
             {
                 "dataset": "GSE215789",
@@ -1243,7 +1243,7 @@ def main() -> None:
                 "level": "",
                 "n": "",
                 "status": "NOT_ASSESSABLE",
-                "note": "No batch identifier is present on the historical plasma table.",
+                "note": "No batch identifier is present on the original plasma table.",
             },
         ]
     )
@@ -1253,7 +1253,7 @@ def main() -> None:
             {
                 "dataset": dataset,
                 "status": "NOT_ASSESSABLE",
-                "reason": "Saved PCA artifacts do not contain scores for every historical sample. PCA was not rerun.",
+                "reason": "Saved PCA artifacts do not contain scores for every original sample. PCA was not rerun.",
             }
             for dataset in DATASET_ORDER
         ]
