@@ -1,0 +1,26 @@
+# Reconstruction choice, not a verified historical lockfile.
+# See docs/ENVIRONMENT_AUDIT.md before solving this file.
+name: ad-mirna-prioritization
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pandas
+  - numpy
+  - scikit-learn
+  - scipy
+  - statsmodels
+  - xgboost
+  - matplotlib
+  - seaborn
+  - tqdm
+  - openpyxl
+  - xlrd
+  - pyyaml
+  - requests
+  - pip
+  - pip:
+      - shap
+      - lime
+      - boruta
+      - mygene

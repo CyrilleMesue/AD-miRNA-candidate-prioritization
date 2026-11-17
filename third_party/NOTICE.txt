@@ -1,0 +1,7 @@
+The package bioinformatics_visual_evidence_atlas and template_rankings.json
+were copied from:
+
+https://github.com/itu-bioinformatics-database-lab/bioinformatics-visualization-skill.git
+
+They are used by the exploratory analysis to choose and draw figures.
+Example images from that repository were not copied.

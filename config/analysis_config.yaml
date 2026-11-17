@@ -1,0 +1,42 @@
+# Paths are relative to the repository root unless absolute.
+# The pipeline stops if a required file is missing. It does not
+# substitute example data.
+
+seed_documented_but_unused_by_rankers: 42
+
+ranking:
+  test_size: 0.2
+  n_folds: 5
+  scoring: F1
+  reference_class: Control
+  top_n_per_ensemble: 20
+  gene_db_cutoff_passed: 1000
+  gene_db_cutoff_used_by_function: 100
+  hmdd_min_score: 1
+  logfc_abs_min: 0.1
+
+processed:
+  rosmap: data/processed/ROSMAP_brain_norm.csv
+  gse120584: data/processed/GSE120584_serum_norm.csv
+  gse215789: data/processed/GSE215789_plasma_count.csv
+
+annotation:
+  hmdd: data/external/HMDD_val_data_miRNA.csv
+  mirtarbase: data/external/mirTarBase_cleaned.csv
+  targetscan: data/external/Predicted_Targets_Info.default_predictions.txt
+  genecards: data/external/genecards_val_data.csv
+  ctd: data/external/CTD_val_data_genes.csv
+
+differential:
+  gse120584_limma: data/interim/GSE120584_results_miRNA_Limma.csv
+  gse218605_edger: data/interim/GSE218605_results_miRNA_edgeR.csv
+  rosmap_mirna_limma: data/interim/rosmap_results_miRNA_Limma.csv
+  gse173955_edger: data/interim/GSE173955_results_mRNA_edgeR.csv
+  gse184942_edger: data/interim/GSE184942_results_mRNA_edgeR.csv
+  rosmap_mrna_limma: data/interim/rosmap_results_mRNA_Limma.csv
+
+outputs:
+  rankings: results/rankings
+  ensemble: results/ensemble_rankings
+  candidates: results/candidates
+  workbook: results/candidates/DetailedExplorationOfPotentailBiomarkers2.xlsx

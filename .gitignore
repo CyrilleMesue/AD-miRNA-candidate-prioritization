@@ -1,0 +1,32 @@
+# Data are never committed (ROSMAP is controlled-access)
+data/*
+!data/raw/
+!data/external/
+data/raw/*
+!data/raw/README.md
+data/external/*
+!data/external/README.md
+*.csv
+!metadata/data_provenance.csv
+*.tsv
+*.gct
+*.xlsx
+*.xls
+*.gz
+*.h5
+*.pkl
+*.parquet
+# Outputs
+results/**
+!results/**/
+!results/**/scripts/*.py
+!results/**/scripts/*.R
+logs/
+reports/
+*.zip
+# Python / tooling
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.env
+.venv/

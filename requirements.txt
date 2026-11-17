@@ -1,0 +1,20 @@
+# Packages imported by the extracted Notebook 11 pipeline.
+# Versions used for the thesis analyses: Python 3.13.9, scikit-learn 1.7.2,
+# xgboost 2.1.4, shap 0.52.0, lime 0.2.0.1, Boruta 0.3.
+pandas
+numpy
+scikit-learn
+scipy
+statsmodels
+xgboost
+shap
+lime
+boruta
+matplotlib
+seaborn
+tqdm
+openpyxl
+xlrd
+pyyaml
+requests
+mygene
