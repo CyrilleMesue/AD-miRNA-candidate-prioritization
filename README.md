@@ -93,3 +93,10 @@ SHAP 0.52.0, LIME 0.2.0.1 and Boruta 0.3, and R 4.4.3 with edgeR 4.4.0 and limma
 ## Citation
 
 If you use the ranking framework, please cite the paper above.
+
+## License
+
+The code in this repository is released under the MIT License (see `LICENSE`).
+The files in `third_party/` were copied from another repository (see
+`third_party/NOTICE.txt`) and keep that repository's terms. Datasets are not
+included and remain subject to their own access and use conditions.
